@@ -66,8 +66,8 @@ const int TILE = 24; // inches
 const int FIELD = TILE*6;
 const double GRVTY = 9.8;
 inline pros::IMU inertial(16);
-inline pros::Rotation trackx(9);
-inline pros::Rotation tracky(8);
+// inline pros::Rotation trackx(9);
+// inline pros::Rotation tracky(8);
 
 // FUNCTIONS
 

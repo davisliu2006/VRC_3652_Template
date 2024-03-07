@@ -3,6 +3,8 @@
 #include "../globals.hpp"
 
 namespace sens {
+    inline double ROT_OFFSET = 0;
+
     //positional
     inline double x = 0, y = 0;
     inline double vx = 0, vy = 0;
@@ -11,7 +13,7 @@ namespace sens {
     // rotational
     inline double rot = 0;
     inline double vrot = 0;
-    inline double rot_trg = -1; // rotational target
+    inline double rot_trg = 0; // rotational target
 
     // timing
     inline double t = 0;
@@ -20,8 +22,6 @@ namespace sens {
     // reset
     inline void reset() {
         if ((inertial.get_status() & pros::c::E_IMU_STATUS_ERROR) == pros::c::E_IMU_STATUS_ERROR) {
-            pros::lcd::clear_line(0);
-            pros::lcd::print(0, "Warning: No inertial attatched.");
             return;
         }
         inertial.reset();
@@ -29,7 +29,7 @@ namespace sens {
         x = 0; y = 0;
         vx = 0; vy = 0;
         rot = 0; vrot = 0;
-        rot_trg = -1;
+        rot_trg = 0;
         t = time(); // IMPORTANT: timer does not reset
     }
 
@@ -49,7 +49,7 @@ namespace sens {
         vx += ax*dt*cos(rot); vy += ay*dt*sin(rot);
 
         // orientation
-        rot = inertial.get_heading();
+        rot = angl_360(inertial.get_heading()+ROT_OFFSET);
         vrot = inertial.get_gyro_rate().z;
 
         // advanced

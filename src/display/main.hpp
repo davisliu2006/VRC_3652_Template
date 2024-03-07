@@ -9,6 +9,7 @@ namespace display {
     inline void init_all() {
         init();
         selection::init();
+        dashboard::init();
     }
 
     // display to show on initialize()

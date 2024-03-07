@@ -9,53 +9,51 @@ namespace dashboard {
 
     //DEFINITIONS
 
-    const double delay = 1;
+    const double DELAY = 1;
     inline double displ_time = 0;
 
-    // motor temperatures
-    inline vector<vector<tuple<pros::Motor, string, int>>> temp_data = {
-        {{flmotor, "FL", 0}, {frmotor, "FR", 0}},
-        {{rlmotor, "RL", 0}, {rrmotor, "RR", 0}}
+    // lines to display
+    inline vector<vector<function<string()>>> display_lines = {
+        // drivetrain
+        {
+            []() {return "FL: "+to_string(int(flmotor.get_temperature()))+"°C";},
+            []() {return "FR: "+to_string(int(frmotor.get_temperature()))+"°C";},
+            
+        },
+        {
+            []() {return "RL: "+to_string(int(rlmotor.get_temperature()))+"°C";},
+            []() {return "RR: "+to_string(int(rrmotor.get_temperature()))+"°C";},
+        },
+        // sensing
+        {
+            []() {return "Rot: "+to_string(sens::rot);},
+            []() {return "Trg: "+to_string(sens::rot_trg);}
+        }
     };
-    inline void get_temp() {
-        for (auto& line: temp_data) {
-            for (auto& [mtr, name, temp]: line) {
-                temp = mtr.get_temperature();
-            }
-        }
-    }
-    inline void displ_temp() {
-        display::update();
-        pros::screen::set_pen(RGB2COLOR(255, 255, 255));
-        for (int i = 0; i < temp_data.size(); i++) {
-            auto& line = temp_data[i];
-            string txt = "";
-            for (int j = 0; j < line.size(); j++) {
-                auto& [mtr, name, temp] = line[j];
-                txt += name+": "+to_string(temp)+"°C";
-                txt += (j == line.size()-1? '\n' : '\t');
-            }
-            pros::screen::print(pros::E_TEXT_SMALL, 5, 10+i*20, txt.c_str());
-        }
-    }
 
     //EVENTS
 
     // initialize
-    inline void init() {
-
-    }
+    inline void init() {}
     
     // update
     /*
     Call this every frame to update and display the dashboard.
     */
     inline void update() {
-        if (displ_time >= delay) {
-            displ_temp();
-            displ_time -= delay;
+        if (displ_time >= DELAY) {
+            displ_time -= DELAY;
+            display::update();
+            for (int i = 0; i < display_lines.size(); i++) {
+                auto& line = display_lines[i];
+                string txt;
+                for (int j = 0; j < line.size(); j++) {
+                    txt += line[j]();
+                    if (j != line.size()-1) {txt += "  ";}
+                }
+                pros::screen::print(pros::E_TEXT_SMALL, 5, 10+i*20, txt.c_str());
+            }
         } else {
-            get_temp();
             displ_time += sens::dt;
         }
     }

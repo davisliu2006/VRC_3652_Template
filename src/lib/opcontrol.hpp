@@ -14,6 +14,7 @@ inline double joymap(int x){
 inline void opcontrol_start() {
     // drivetrain
     bool drv_rev = 1; // reverse drivetrain: set to -1
+    bool drv_rev_pressed = false;
 
     while (true) {
         // sensing

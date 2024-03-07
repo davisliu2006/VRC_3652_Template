@@ -4,6 +4,10 @@
 #include "lib/opcontrol.hpp"
 #include "route/route.hpp"
 
+#if __has_include("test/auton_test.hpp")
+#include "test/auton_test.hpp"
+#endif
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -11,6 +15,8 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+    // IMPORTANT: initialize all pneumatics to 0
+
     // lcd
     display::init_all();
     display::on_init();
@@ -20,10 +26,17 @@ void initialize() {
     frmotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
     rlmotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
     rrmotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+    flmotor.set_encoder_units(pros::E_MOTOR_ENCODER_DEGREES);
+    frmotor.set_encoder_units(pros::E_MOTOR_ENCODER_DEGREES);
+    rlmotor.set_encoder_units(pros::E_MOTOR_ENCODER_DEGREES);
+    rrmotor.set_encoder_units(pros::E_MOTOR_ENCODER_DEGREES);
     WHEEL_RPM = gear_mp[flmotor.get_gearing()];
     WHEEL_RPS = WHEEL_RPM/60;
     WHEEL_LSPD = WHEEL_RPS*WHEEL_C;
     cout << "WHEEL_RPM: " << WHEEL_RPM << '\n';
+
+    // STALLING INITIALIZATIONS
+    sens::reset();
 }
 
 /**
@@ -62,8 +75,16 @@ void competition_initialize() {
  * from where it left off.
  */
 void autonomous() {
+    sens::ROT_OFFSET = 0;
+    sens::rot_trg = sens::ROT_OFFSET;
     display::on_auton();
     auton::init();
+    static vector<function<void()>> route_mp = {
+        
+    };
+    if (selection::route < route_mp.size()) {
+        route_mp[selection::route]();
+    }
 }
 
 /**
@@ -80,8 +101,13 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+    #ifdef AUTON_TEST // auton test
+    selection::route = AUTON_TEST;
+    autonomous();
+    #endif
+
     display::on_opcontrol();
     if (!auton::did_init) {auton::init();}
     auton::need_sens_reset = true;
     opcontrol_start();
-}
+} 

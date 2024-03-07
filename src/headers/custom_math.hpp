@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -26,7 +27,20 @@ template <class type>
 inline type sign(type x) {
     return (x >= 0? 1 : -1);
 }
+
+// range
 template <class type>
-inline type in_range(type var, type lo, type hi) {
+inline bool in_range(type var, type lo, type hi) {
     return lo <= var && var <= hi;
+}
+template <class type>
+inline type limit_range(type var, type lo, type hi) {
+    return max(lo, min(hi, var));
+}
+
+// average
+inline double vec_avg(const vector<double>& vec) {
+    double tot = 0;
+    for (const double& x: vec) {tot += x;}
+    return tot/vec.size();
 }
