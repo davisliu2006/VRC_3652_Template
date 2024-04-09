@@ -33,9 +33,6 @@ namespace sens {
         t = time(); // IMPORTANT: timer does not reset
     }
 
-    // advanced (defined later)
-    void update_dynamic_avg();
-
     // update
     inline void update() {
         // timing
